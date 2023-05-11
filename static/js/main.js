@@ -81,9 +81,11 @@ function addCOokieItem(productId, totalQty){
     if (cart[productId] == undefined){
         
         cart[productId] = {'quantity': 1}
+        alertify.success("Product Added Successfully")
     }else{
         if(totalQty > cart[productId]['quantity']){
         cart[productId]['quantity'] += 1
+        alertify.success("Product Added Successfully")
         }else{
             alertify.error("Out of Stock")
         }
@@ -164,8 +166,10 @@ function addCookieItem(productId, proQty, totalQty){
   console.log(proQty)
   if (cart[productId] == undefined){
       cart[productId] = {'quantity': parseInt(proQty)}
+      alertify.success("Product Added Successfully")
   }else{
       cart[productId]['quantity'] += parseInt(proQty)
+      alertify.success("Product Added Successfully")
   }
   if(cart[productId]['quantity'] > totalQty){
       cart[productId]['quantity'] = parseInt(totalQty)

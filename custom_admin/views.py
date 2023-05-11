@@ -482,9 +482,10 @@ def delete_banner(request, id):
     return redirect('display_banner')
 
 def sales_report(request):
-    order =  Orders.objects.order_by('-created_at')
-    print(order)
-    return render(request, 'custom_admin/sales_report.html', {'order_items': order})
+    order =  Orders.objects.filter(status = "Completed").order_by('-created_at')
+    total_sales = order.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
+    
+    return render(request, 'custom_admin/sales_report.html', {'order_items': order, 'total_sales':total_sales})
 
 
 def sales(request):
@@ -493,8 +494,9 @@ def sales(request):
         end_time = datetime.strptime(request.POST.get('ending_date'), '%Y-%m-%dT%H:%M')
         output_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
         output_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
-        order = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time)).order_by('-created_at')
-        t = render_to_string('custom_admin/sales_list.html', {'orders':order})
+        order = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time, status = "Completed" )).order_by('-created_at')
+        total_sales = order.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
+        t = render_to_string('custom_admin/sales_list.html', {'orders':order, 'total_sales':total_sales})
    
         return JsonResponse({'status': t})
     
@@ -507,9 +509,12 @@ def sales_report_pdf(request):
             
             output_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
             output_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
-            orders = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time)).order_by('-created_at')
+            orders = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time), status = "Completed").order_by('-created_at')
             
-            context = {'order_items': orders}
+            total_sales = orders.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
+            
+
+            context = {'order_items': orders, 'total_sales': total_sales}
             response = HttpResponse(content_type = 'application/pdf')
             response['Content-Disposition'] = 'filename = "orders_report.pdf"'
             template = get_template(template_path)
@@ -527,10 +532,10 @@ def sales_report_pdf(request):
             output_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
             output_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
             orders = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time)).order_by('-created_at')
-            
+            total_sales = orders.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
 
             # Pass the order data to the HTML template
-            context = {'order_items': orders}
+            context = {'order_items': orders, 'total_sales':total_sales}
 
             # Render the HTML template with the order data
             html_string = render(request, 'pdf_convert/order_pdf.html', context).content.decode('utf-8')

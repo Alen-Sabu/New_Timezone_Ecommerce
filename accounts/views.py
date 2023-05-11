@@ -163,6 +163,7 @@ def product(request, slug):
     related_products = Product.objects.filter(category = category)[:9]
     old_price = 0
     original_price = product.original_price
+    num_of_item = 0
     if request.user.is_authenticated:
         if not request.user.is_superuser:
             customer = request.user
@@ -346,7 +347,7 @@ def password_reset_request(request):
                          email_template_name = "main/password/password_reset_email.txt"
                          c = {
                               "email":user.email,
-                              "domain":'127.0.0.1:8000',
+                              "domain":'16.16.200.144',
                               "site_name":'Website',
                               "uid":urlsafe_base64_encode(force_bytes(user.pk)),
                               "user":user,

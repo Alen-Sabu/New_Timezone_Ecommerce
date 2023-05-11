@@ -281,7 +281,7 @@ def addtowishlist(request):
             return JsonResponse({"status":"Login to Continue"})
     return redirect('/')
 
-
+@login_required(login_url='user_login')
 def wishlist(request):
     if request.user.is_authenticated:
         customer = request.user
