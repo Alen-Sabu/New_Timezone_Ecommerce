@@ -59,7 +59,7 @@ def cart(request):
             order['get_cart_total'] += total
             order['get_cart_items'] += cart[i]["quantity"]
             msg = ""
-            if(cart[i]["quantity"] > product.quantity):
+            if(cart[i]["quantity"] > product.quantity ):
                 cart[i]["quantity"] = product.quantity
                 msg = "Only this items left"
 

@@ -92,10 +92,18 @@ def home(request):
             items = order.orderitem_set.all()
             num_of_item = order.get_cart_items
     else:
+        try:
+            cart = json.loads(request.COOKIES['cart'])
+        except:
+            cart = {}
 
         items = []
         order = {'get_cart_total':0, 'get_cart_items':0}
         num_of_item = order['get_cart_items']
+
+        for i in cart:
+            num_of_item += int(cart[i]["quantity"])
+            
 
     now = timezone.now()
 
@@ -135,6 +143,8 @@ def home(request):
             product.selling_price = product.original_price
             product.offer_status = False
             product.save()
+        
+       
 
     return render(request, 'user/index.html',{'products':products, 'num_of_items': num_of_item, 'banner':banner})
 
@@ -171,11 +181,17 @@ def product(request, slug):
             items = order.orderitem_set.all()
             num_of_item = order.get_cart_items
     else:
-
+        try:
+            cart = json.loads(request.COOKIES['cart'])
+        except:
+            cart = {}
         items = []
         order = {'get_cart_total':0, 'get_cart_items':0}
         num_of_item = order['get_cart_items']
 
+        for i in cart:
+            
+            num_of_item += int(cart[i]["quantity"])
     try:
         offer = product.offer
         print(offer.discount_amount)
@@ -222,18 +238,21 @@ def addtocart(request):
                     order,created = Order.objects.get_or_create(customer = request.user, complete = False)
                
                     orderItem, created = OrderItem.objects.get_or_create(order = order, product = product_check)
-                    num_of_item = order.get_cart_items
+                   
                     
                     orderItem.quantity += prod_qty
+                    
                     if(orderItem.quantity > product_check.quantity):
                         orderItem.quantity = product_check.quantity
                         product_check.save()
                         orderItem.save()
                         order.save()
+                        num_of_item = order.get_cart_items
                         return JsonResponse({"failure":"Product already exists in the cart ! Cannot add product",'num_of_items':num_of_item})
                     product_check.save()
                     orderItem.save()
                     order.save()
+                    num_of_item = order.get_cart_items
                     return JsonResponse({"status":"Product added successfully",'num_of_items':num_of_item})
                 
                 elif(product_check.quantity == 0):

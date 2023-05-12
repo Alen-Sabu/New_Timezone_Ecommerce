@@ -82,9 +82,14 @@ function addCOokieItem(productId, totalQty){
         
         cart[productId] = {'quantity': 1}
         alertify.success("Product Added Successfully")
+        var total_items = getTotalItems()
+        $('#lblCartCount').html(total_items)
+        
     }else{
         if(totalQty > cart[productId]['quantity']){
         cart[productId]['quantity'] += 1
+        var total_items = getTotalItems()
+        $('#lblCartCount').html(total_items)
         alertify.success("Product Added Successfully")
         }else{
             alertify.error("Out of Stock")
@@ -161,15 +166,30 @@ function addToCart(proId) {
   }
 }
 
+function getTotalItems() {
+    var totalItems = 0;
+    for (var key in cart) {
+      if (cart.hasOwnProperty(key)) {
+        totalItems += cart[key]['quantity'];
+      }
+    }
+    return totalItems;
+  }
+  
+
 function addCookieItem(productId, proQty, totalQty){
  
   console.log(proQty)
   if (cart[productId] == undefined){
       cart[productId] = {'quantity': parseInt(proQty)}
       alertify.success("Product Added Successfully")
+      var total_items = getTotalItems()
+      $('#lblCartCount').html(total_items)
   }else{
       cart[productId]['quantity'] += parseInt(proQty)
       alertify.success("Product Added Successfully")
+      var total_items = getTotalItems()
+      $('#lblCartCount').html(total_items)
   }
   if(cart[productId]['quantity'] > totalQty){
       cart[productId]['quantity'] = parseInt(totalQty)

@@ -91,6 +91,7 @@ DATABASES = {
         'PORT': '',
     }
 }
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -168,3 +169,12 @@ EMAIL_HOST_PASSWORD = 'ahuzsldmeqsizffp'
 
 PAYPAL_RECEIVER_EMAIL = 'sb-ricrn25683899@business.example.com'
 PAYPAL_TEST = True
+
+
+# settings.py
+
+# enable HTTPS by redirecting all HTTP requests to HTTPS
+# SECURE_SSL_REDIRECT = True
+
+# set the preferred URL scheme to HTTPS
+# PREFERRED_URL_SCHEME = 'https'

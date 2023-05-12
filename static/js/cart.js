@@ -22,7 +22,8 @@ $(document).ready(function() {
             if(user == 'AnonymousUser'){
             cart[productId]["quantity"] = parseInt(value)
             document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
-          
+            var total_items = getTotalItems()
+            $('#lblCartCount').html(total_items)
             }
             var total = value * price
             $(this).closest(".product_data").find('.qty-input').val(value);
@@ -53,7 +54,8 @@ $(document).ready(function() {
             if(user == 'AnonymousUser'){
             cart[productId]["quantity"] = parseInt(value)
             document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
-            console.log(cart)
+            var total_items = getTotalItems()
+            $('#lblCartCount').html(total_items)
             }
             var total = value * price
             $(this).closest(".product_data").find('.qty-input').val(value);
@@ -79,6 +81,8 @@ $(document).ready(function() {
         if(user == 'AnonymousUser'){
             cart[product_id]["quantity"] = parseInt(product_qty)
             document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+            var total_items = getTotalItems()
+                    $('#lblCartCount').html(total_items)
             console.log(cart)
             return
             }
@@ -129,6 +133,8 @@ $(document).ready(function() {
                     delete cart[product_id]
                     document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
                     $('.cart-data').load(location.href + " .cart-data" )
+                    var total_items = getTotalItems()
+                    $('#lblCartCount').html(total_items)
                     swal("Poof! Your product has been removed from the cart!", {
                         icon: "success",
                       });
@@ -254,3 +260,13 @@ $(document).ready(function() {
 
    
 
+function getTotalItems() {
+    var totalItems = 0;
+    for (var key in cart) {
+      if (cart.hasOwnProperty(key)) {
+        totalItems += cart[key]['quantity'];
+      }
+    }
+    return totalItems;
+  }
+  

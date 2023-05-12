@@ -192,7 +192,7 @@
                             <div class="popular-img">
                                 <a href="{% url 'product_detail' product.slug %}" style="cursor:pointer;"><img style="width: 100%;height: 380px;object-fit: cover;" src="{{product.product_image.url}}" alt=""></a>
                                 <div class="img-cap">
-                                    <input type="text" value={{product.quantity}}  id = "{{product.id}}" class="shop-page-guest-cart">
+                                    <input type="hidden" value={{product.quantity}}  id = "{{product.id}}" class="shop-page-guest-cart">
                                     <input type="hidden" value={{product.id}} class="home-page-product-id">
                                     <span><button style="background:transparent;border:none;cursor:pointer;" class="add-cart" value="{{product.id}}" href="">Add to cart</button></span>
                                 </div>
