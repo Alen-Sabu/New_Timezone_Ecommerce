@@ -221,7 +221,7 @@ def product(request, slug):
             product.save()
     
     images = Picture.objects.all().filter(product= product.id)
-    return render(request, 'user/product_details_1.html', {'product':product,'images':images, 'related_products': related_products, 'num_of_items': num_of_item})
+    return render(request, 'user/product_details.html', {'product':product,'images':images, 'related_products': related_products, 'num_of_items': num_of_item})
 
 def addtocart(request):
     if request.method == "POST":
@@ -439,3 +439,5 @@ def activate_address(request):
     BillingAddress.objects.filter(id = a_id).update(status = True)
     data = {}
     return JsonResponse({'bool':True})
+
+

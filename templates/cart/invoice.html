@@ -15,20 +15,27 @@
             </p>
 
             <div class="border-top border-gray-200 pt-4 mt-4">
+              <div class=" mb-2 border-bottom border-grey-200"><strong>Order Deatils</strong></div>
               <div class="row">
                 <div class="col-md-6">
-                  <div class="text-muted mb-2">Payment No.</div>
-                  <strong>#88305</strong>
+                  <div class="text-muted mb-2">Order Id : {{orders.id}}</div>
+                  <div class="text-muted mb-2">Order Total : {{orders.total_price}}</div>
+                  {% if discount %}
+                  <div class="text-muted mb-2">Order Discount : {{discount}}</div>
+                  {% endif %}
+                  
                 </div>
                 <div class="col-md-6 text-md-end">
                   <div class="text-muted mb-2">Payment Date</div>
-                  <strong>Feb/09/20</strong>
+                  <div class="text-muted mb-2">{{orders.created_at}}</div>
                 </div>
               </div>
             </div>
 
             <div class="border-top border-gray-200 mt-4 py-4">
+              <div class=" mb-2 border-bottom border-grey-200"><strong>Address Deatils</strong></div>
               <div class="row">
+
                 <div class="col-md-6">
                   <div class="text-muted mb-2"></div>
                   <strong>
@@ -45,6 +52,8 @@
               </div>
             </div>
 
+            <div class="border-top border-grey mt-4 py-4">
+              <div class="mb-2"><strong>Product Deatils</strong></div>
             <table class="table border-bottom border-gray-200 mt-3">
               <thead>
                 <tr>
@@ -83,6 +92,7 @@
                 <h5 class="text-success">${{order_item.get_total}}</h5>
               </div>
             </div>
+          </div>
           </div>
           
         </div>

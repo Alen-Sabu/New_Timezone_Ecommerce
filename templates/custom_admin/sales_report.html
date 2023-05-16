@@ -20,9 +20,11 @@
             <input type="datetime-local" id="ending-time" name="end_date" required>
             
             <input type = "submit" class="btn sales_submit">
-            <input class="btn btn-primary" type="submit" name="pdf_button" value="Download PDF">
-            <input class="btn btn-primary" type="submit" name="excel_button" value="Download Excel">
+            <input class="btn btn-primary " type="submit" name="pdf_button" value="Download PDF">
+            <input class="btn btn-primary " type="submit" name="excel_button" value="Download Excel">
+            
             </form>
+            
         <table class="table table-image ordertable">
             <thead class="thead-dark">
               <tr>
@@ -47,13 +49,17 @@
               </tr>
               {% endfor %}
 
-              
+              {% if messages %}
+              {% for message in messages %}
+              <h3>{{message}}</h3>
+              {% endfor %}
+              {% endif %}
                
                
             </tbody>
             
           </table> 
-          <h5 class="mb-30">TOTAL SALES : {{total_sales|floatformat:0}}</h5>
+          <h5  class="mb-30 ">TOTAL SALES : <strong class="totalAmount-sales-report">{{total_sales|floatformat:0}}</strong></h5>
     </div>
 </div>
 {% endblock %}

@@ -40,5 +40,40 @@ $(document).ready(function() {
         }
       });
     });
+
+
+    $('#payWallet').click(function(e) {
+      e.preventDefault()
+
+
+      
+      
+      var token = $('input[name=csrfmiddlewaretoken]').val()
+
+      
+      $.ajax({
+        type: 'POST',
+        url: '/shop/wallet_payment',
+        data: {
+
+            
+            csrfmiddlewaretoken: token
+    },
+        dataType: 'json',
+        success: function(responsec){
+          if(responsec.failure){
+            swal("Failed!", responsec.status, "error")
+            return
+          }else{
+          swal("Congratulations!", responsec.status,"success").then((value) =>{
+              window.location.href = "/shop/confirmation"
+          })
+        }
+          
+      }
+        
+  });
+
   });
   
+});

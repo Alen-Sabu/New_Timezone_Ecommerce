@@ -196,3 +196,12 @@ class Return(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+
+class Wallet(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    balance = models.FloatField(null= True)
+    status = models.CharField(max_length=20, null=True)
+
+    def __str__(self) -> str:
+        return f"{self.user}'s Wallet"

@@ -42,6 +42,8 @@
                 <td style="vertical-align:middle;">{{order.get_total}}</td>
                 {% if order.status == "Return Requested" %}
                 <td  style="vertical-align:middle;"><h3>Return Requested</h3></td>
+                {% elif order.status == "Cancelled"%}
+                <td  style="vertical-align:middle;"><h3>Order Cancelled</h3></td>
                 {% elif order.status == "Return Approved"%}
                 <td  style="vertical-align:middle;"><h3>Return is successful</h3></td>
                  {% else %}

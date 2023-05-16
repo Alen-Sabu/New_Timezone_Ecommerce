@@ -22,6 +22,7 @@ from django.contrib.sessions.backends.db import SessionStore
 
 from wkhtmltopdf.views import PDFTemplateResponse
 from django.template.loader import get_template
+from django.db.models import Q
 from django.views.decorators.http import require_GET
 
 
@@ -338,6 +339,17 @@ def payment(request):
             shipping_address = ShippingAddress.objects.get(id = shipping_address_id)
         except:
             print("shipping address is not in session")
+    else:
+        shipping_address = ShippingAddress()
+        shipping_address.email = default_address.email
+        shipping_address.phone_number = default_address.phone_number
+        shipping_address.country = default_address.country
+        shipping_address.state = default_address.state
+        shipping_address.city = default_address.city
+        shipping_address.address = default_address.address
+        shipping_address.district = default_address.district
+        shipping_address.pincode = default_address.pincode
+        shipping_address.save()
 
     if coupon_id:
         try:
@@ -377,8 +389,95 @@ def payment(request):
     order.payment = payment
     
     order.save()
+
+
+
+def wallet_payment(request):
+    cart = Order.objects.get(customer=request.user)
+    cart_items = cart.orderitem_set.filter(product__is_available=True)
+    coupon_id = request.session.get('coupon_id')
+    billing_address_id = request.session.get('billing_address_id')
+    shipping_address_id = request.session.get('shipping_address_id')
+
+    wallet = Wallet.objects.get(user = request.user)
+    if(wallet.balance == None):
+        wallet.balance = 0
+    if(wallet.balance >= cart.total_price):
+
     
- 
+        try:
+            default_address = BillingAddress.objects.get(customer = request.user, status=True)
+            billing_form = BillingAddressForm(instance=default_address)
+            shipping_form = ShippingAddressForm(instance = default_address)
+        except BillingAddress.DoesNotExist:
+            billing_form = BillingAddressForm()
+            shipping_form = ShippingAddressForm()
+        
+        if billing_address_id:
+            try:
+                default_address = BillingAddress.objects.get(id = billing_address_id)
+            except:
+                print("billing address is not in session")
+        
+
+        if shipping_address_id:
+            try:
+                shipping_address = ShippingAddress.objects.get(id = shipping_address_id)
+            except:
+                print("shipping address is not in session")
+        else:
+            shipping_address = ShippingAddress()
+            shipping_address.email = default_address.email
+            shipping_address.phone_number = default_address.phone_number
+            shipping_address.country = default_address.country
+            shipping_address.state = default_address.state
+            shipping_address.city = default_address.city
+            shipping_address.address = default_address.address
+            shipping_address.district = default_address.district
+            shipping_address.pincode = default_address.pincode
+            shipping_address.save()
+
+        
+        
+
+        order = Orders.objects.create(customer=request.user)
+        total = cart.total_price
+        order.billing_address = default_address
+        order.shipping_address = shipping_address
+        order.total_price = total
+        
+        for item in cart_items:
+            product_quantity(id=item.product.id, quantity=item.quantity)
+
+        for item in cart_items:
+            OrderedItems.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.selling_price)
+        cart_items.delete()
+
+        payment = Payment(
+            user = request.user, 
+            payment_id = str(uuid.uuid4()),
+            payment_mode = "Wallet",
+            total_amount = order.total_price, 
+            status = "Pending",
+
+        
+        )
+        payment.save()
+        order.payment = payment
+        order.save()
+
+        request.session['order_id'] = order.id
+        wallet.balance -= order.total_price
+        wallet.save()
+        return JsonResponse({'status':"Your Order Has been placed successfully"})
+    
+    else:
+
+        return JsonResponse({'status': "Not enough balance in your wallet", "failure":True})
+
+
+
+        
 
 def cash_on_delivery(request):
     cart = Order.objects.get(customer=request.user)
@@ -502,7 +601,8 @@ def razorpay(request):
         shipping_address.pincode = default_address.pincode
         shipping_address.save()
 
-   
+    print(shipping_address)
+    
     order = Orders.objects.create(customer=request.user)
     total = cart.total_price
     order.billing_address = default_address
@@ -703,8 +803,9 @@ def invoice(request, order_id, product_id):
     order = Orders.objects.get( id = order_id)
     product = Product.objects.get(id = product_id)
     order_item = OrderedItems.objects.get(order = order, product = product)
-
-    context = { 'orders': order, 'id':order_id, 'order_item': order_item }
+    discount = order.get_order_total - order.total_price
+    print(discount)
+    context = { 'orders': order, 'id':order_id, 'order_item': order_item , 'discount':discount}
     return render(request, 'cart/invoice.html', context)
 
 
@@ -821,6 +922,33 @@ def apply_coupon(request):
         return JsonResponse({'success': False, 'message': 'Invalid coupon code'})
     
 # -----------------COUPON SECTION ENDING-----------------
+
+
+# ----------------- WALLET SECTION START ----------------
+
+def wallet(request):
+    orders = Orders.objects.filter(
+        Q(status="ReturnApproved") & 
+        Q(payment__payment_mode__in=["PayPal", "RazorPay", "COD", "Wallet"]) |
+        Q(status="Cancelled", payment__payment_mode__in=["PayPal", "RazorPay", "Wallet"])
+    ).filter(customer=request.user)
+    print(orders)
+    try:
+        wallet = Wallet.objects.get(user = request.user)
+        if(not wallet.balance):
+            wallet.balance = 0
+    except:
+        wallet = Wallet.objects.create(user = request.user)
+        if(not wallet.balance):
+            wallet.balance = 0
+    context = {'wallet': wallet, 'orders':orders}
+    return render(request, 'wallet/main.html', context)
+
+
+
+# ----------------- WALLET SECTION ENDING ----------------
+
+
 
 
 

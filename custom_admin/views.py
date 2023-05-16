@@ -37,6 +37,8 @@ import pandas as pd
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 from datetime import datetime, timedelta
+from django.contrib import messages
+
 # Create your views here.
 
 # ------------- ADMIN LOGIN - LOGOUT SECTION ---------------------
@@ -372,27 +374,46 @@ def orders_detail(request, id):
 
 def order_item_detail(request, order_id, order_item_id):
     order = Orders.objects.get(id = order_id)
+    user = order.customer
+    
     order_item = get_object_or_404(OrderedItems, id=order_item_id, order = order)
     if request.method == 'POST':
         order_item.status = request.POST['status']
-        print(request.POST['status'])
+      
         order_item.save()
-    print(order_item.status)
+        if order_item.status == "Return Approved":
+                wallet, created = Wallet.objects.get_or_create(user = user)
+                if(wallet.balance is None):
+                    wallet.balance = 0
+                wallet.balance += order_item.get_total
+                
+               
+                wallet.save()
+        if (order_item.status == "Cancelled" and (order.payment.payment_mode == "PayPal" or order.payment.payment_mode == "RazorPay" or order.payment.payment_mode == "Wallet")):
+                wallet, created = Wallet.objects.get_or_create(user = user)
+                if(wallet.balance is None):
+                    wallet.balance = 0
+                wallet.balance += order_item.get_total
+                wallet.save()
+                print(order_item.status)
     
     return redirect(orders_detail, order_id)
 
 
 def edit_order_status(request, id):
     order = Orders.objects.get(id = id)
+    user = order.customer
     if request.method == 'POST':
         form = OrderForm(request.POST, instance=order)
         if form.is_valid():
-            form.save()
+            orders = form.save()
+            
             return redirect('display_orders')
     else:
         form = OrderForm(instance=order)
     context = {'form': form}
     return render(request, 'custom_admin/update_order.html', context)
+
 
 def dashboard(request):
     return render(request, 'custom_admin/dashboard.html')
@@ -498,12 +519,14 @@ def sales(request):
         total_sales = order.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
         t = render_to_string('custom_admin/sales_list.html', {'orders':order, 'total_sales':total_sales})
    
-        return JsonResponse({'status': t})
+        return JsonResponse({'status': t, 'total':total_sales})
     
 def sales_report_pdf(request):
     if request.method == "POST":
+        print("in post method")
         if 'pdf_button' in request.POST:
-            template_path = 'pdf_convert/order_pdf.html'
+            
+            print("in sales report")
             start_time = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%dT%H:%M')
             end_time = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%dT%H:%M')
             
@@ -512,18 +535,22 @@ def sales_report_pdf(request):
             orders = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time), status = "Completed").order_by('-created_at')
             
             total_sales = orders.aggregate(total_sales=Sum('total_price')).get('total_sales', 0)
-            
+            if not orders:
+                messages.info(request, "No orders in this date")
+                return redirect(sales_report)
+            else:
+                template_path = 'pdf_convert/order_pdf.html'
+                context = {'order_items': orders, 'total_sales': total_sales}
+                response = HttpResponse(content_type = 'application/pdf')
+                response['Content-Disposition'] = 'filename = "orders_report.pdf"'
+                template = get_template(template_path)
+                html = template.render(context)
 
-            context = {'order_items': orders, 'total_sales': total_sales}
-            response = HttpResponse(content_type = 'application/pdf')
-            response['Content-Disposition'] = 'filename = "orders_report.pdf"'
-            template = get_template(template_path)
-            html = template.render(context)
+                pisa_status = pisa.CreatePDF(html, dest=response)
+                if pisa_status.err:
+                    return HttpResponse("We has some errors <pre>"+html +'</pre>')
+                return response
 
-            pisa_status = pisa.CreatePDF(html, dest=response)
-            if pisa_status.err:
-                return HttpResponse("We has some errors <pre>"+html +'</pre>')
-            return response
         elif 'excel_button' in request.POST:
     
             start_time = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%dT%H:%M')

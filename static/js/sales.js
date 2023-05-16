@@ -26,6 +26,8 @@ $(document).ready(function(){
             success: function(response){
                 console.log(response)
                 $(".order-sales").html(response.status)
+                $(".totalAmount-sales-report").html(response.total)
+                
                 
             }
         })
@@ -48,6 +50,7 @@ $(document).ready(function(){
             method: "POST",
             url: "/custom_admin/sales_report_pdf",
             data: {
+                "pdf_button": true,
                 "starting_date": start_time,
                 "ending_date": end_time,
                 
@@ -55,7 +58,12 @@ $(document).ready(function(){
             },
             dataType: "json",
             success: function(response){
-                console.log(response)
+                
+                if(response.failure){
+                alert("No orders")
+                swal("No Orders!", response.status, "error");
+                }
+                
                
                 
             }

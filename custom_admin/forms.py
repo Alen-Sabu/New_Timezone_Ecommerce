@@ -135,7 +135,7 @@ class BannerForm(forms.ModelForm):
     image = forms.ImageField(widget=forms.FileInput(attrs={'class':'form-control'}))
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%S.%fZ'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
     end_date = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%S.%fZ'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
-
+    status = models.BooleanField()
     class Meta:
         model = Banner
-        fields = ['name','heading','description','image','start_date', 'end_date']
+        fields = ['name','heading','description','image','start_date', 'end_date', 'status']

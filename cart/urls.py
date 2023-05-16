@@ -39,11 +39,14 @@ urlpatterns = [
     path('cash_on_delivery', views.cash_on_delivery, name="cash_on_delivery"),
     path('proceed-to-pay', views.beforerazorpay, name="razorpay"),
     path('razor_pay', views.razorpay, name="razor_pay"),
+    path('wallet_payment', views.wallet_payment, name="wallet_payment"),
 
     path('process-payment/', views.process_payment, name="process_payment"),
     path('paypal/', include('paypal.standard.ipn.urls')),
     path('payment-done/', views.payment_done, name="payment_done"),
     path('payment-cancelled/', views.payment_canceled, name="payment_canccelled"),
+
+    path('wallet',views.wallet, name="wallet"),
 
 
 ]
