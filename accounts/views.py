@@ -10,11 +10,12 @@ from .decorators import verification_required
 from .models import CustomUser, Picture, Product
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm, ReviewForm
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.cache import never_cache
 
 
+from django.db.models import Avg
 #password import
 from django.contrib.auth.forms import PasswordResetForm
 from django.db.models.query_utils import Q
@@ -78,7 +79,7 @@ def user_login(request):
 
 @never_cache
 def user_logout(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and not request.user.is_superuser:
        logout(request)
        return redirect(home)
 
@@ -174,12 +175,18 @@ def product(request, slug):
     old_price = 0
     original_price = product.original_price
     num_of_item = 0
+    reviewForm = ReviewForm()
+    canAdd = True
+    reviewCheck = ProductReview.objects.filter(user = request.user, product = product).count()
     if request.user.is_authenticated:
         if not request.user.is_superuser:
             customer = request.user
             order, created = Order.objects.get_or_create(customer = customer, complete = False)
             items = order.orderitem_set.all()
             num_of_item = order.get_cart_items
+            if reviewCheck > 0:
+                canAdd = False
+            
     else:
         try:
             cart = json.loads(request.COOKIES['cart'])
@@ -220,8 +227,18 @@ def product(request, slug):
             product.offer_status = False
             product.save()
     
+    review = ProductReview.objects.filter(product= product)
+
+    # fetch avg rating for reviews
+    avg_reviews = ProductReview.objects.filter(product= product).aggregate(avg_rating = Avg('review_rating'))
+    count_reviews = ProductReview.objects.filter(product= product).count()
+    
     images = Picture.objects.all().filter(product= product.id)
-    return render(request, 'user/product_details.html', {'product':product,'images':images, 'related_products': related_products, 'num_of_items': num_of_item})
+    context = {'product':product,'images':images, 'related_products': related_products, 
+               'num_of_items': num_of_item, 'form':reviewForm, 
+               'canAdd':canAdd, 'reviews':review, 'avg_reviews':avg_reviews, 'count_reviews':count_reviews}
+
+    return render(request, 'user/product_details.html', context )
 
 def addtocart(request):
     if request.method == "POST":
@@ -441,3 +458,23 @@ def activate_address(request):
     return JsonResponse({'bool':True})
 
 
+
+def save_review(request, id):
+    product = Product.objects.get(id = id)
+    user = request.user
+
+    review = ProductReview.objects.create(
+        user = user,
+        product = product,
+        review_text = request.POST['review_text'],
+        review_rating = request.POST['review_rating']
+    )
+    review_rating = request.POST['review_rating']
+    count_review = ProductReview.objects.filter(product= product).count()
+    data = {
+        'user':user.username, 
+        'review_text':request.POST['review_text'],
+        'review_rating':request.POST['review_rating'],
+        'count_review':count_review
+    }
+    return JsonResponse({'bool':True, 'data':data})

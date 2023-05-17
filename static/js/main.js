@@ -354,4 +354,49 @@ $(document).ready(function() {
         
 
     })
+    //product review save
+
+    $("#addReviewForm").submit(function(e){
+        
+        $.ajax({
+            data:$(this).serialize(),
+            method:$(this).attr('method'),
+            url:$(this).attr('action'),
+            dataType:'json',
+            success:function(res){
+                if(res.bool == true){
+                    $(".ajaxReviewRes").html("Review has been added")
+                    $("#reset").trigger('click');
+                    $(".reviewBtn").hide()
+
+                    var _html = ' <div class="review">';
+                    _html+= '<div class="desc">';
+                    _html+= '<h4>'
+                    _html+= '<span class="text-left">'+res.data.user+'</span>'
+                    _html+= '</h4>'
+                    _html+= '<p class="star">'
+                    _html+= '<span>'
+                    for(var i = 1; i<=res.data.review_rating; i++){
+                    _html+= '<i class="fa fa-star"></i>'
+                    }
+                    _html+= '</span>'
+                    _html+= '<p>'+res.data.review_text+'</p>'
+                    _html+= '</div>'
+                    _html+= '</div>'
+
+                    $(".review-list").prepend(_html)
+
+                    $(".count-reviews").html(res.data.count_review += "Reviews")
+
+                    //hide modal
+                     $("#productReview").modal('hide');
+                    
+                
+                }
+                console.log(res)
+            }
+        })
+
+        e.preventDefault();
+    })
 })

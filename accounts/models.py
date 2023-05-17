@@ -101,7 +101,21 @@ class Picture(models.Model):
     def __str__(self):
         return self.image.url
 
-
-
+RATING = (
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5'),
+)
+class ProductReview(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    review_text = models.TextField()
+    review_rating = models.IntegerField(choices=RATING)
     
-     
+    def get_review_rating(self):
+        return self.review_rating
+
+    def __str__(self):
+        return f"Rating: {self.review_rating}, Review: {self.review_text}"

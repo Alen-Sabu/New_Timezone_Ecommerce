@@ -17,10 +17,16 @@ class PictureInline(admin.StackedInline):
 class ProductAdmin(admin.ModelAdmin):
     inlines = [PictureInline]
 
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'review_text', 'get_review_rating')
+
+
+
 admin.site.register(Product, ProductAdmin)
 
 admin.site.register(Offer)
 admin.site.register(CustomUser)
 admin.site.register(Category,CatergoryAdmin)
 admin.site.register(Brand)
+admin.site.register(ProductReview, ProductReviewAdmin)
 

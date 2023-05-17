@@ -11,6 +11,7 @@ urlpatterns = [
     path('product/<slug:slug>',views.product, name="product_detail"),
     path('phone_verify',views.phone_verify, name="phone_verify"),
     path('verify/', views.verify_code, name="verify"),
+    path('save-review/<int:id>', views.save_review, name="save-review"),
     
 
 

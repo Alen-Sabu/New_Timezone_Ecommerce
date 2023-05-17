@@ -52,72 +52,76 @@ def admin_login(request):
         
         username=request.POST['username']
         password=request.POST['password']
-        user=authenticate(username=username,password=password)
-        if user is not None:
-            if user.is_superuser:
-                login(request,user)
+        adminuser=authenticate(username=username,password=password)
+        if adminuser is not None:
+            if adminuser.is_superuser:
+                login(request,adminuser)
                 return redirect(admin_dashboard)
         else:
             return render(request,'custom_admin/admin_login.html',{'invalid':"Invalid Credentials"})
     else:
          return render(request,'custom_admin/admin_login.html')
 
-@never_cache
+
 def admin_logout(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.is_superuser:
        logout(request)
        return redirect(admin_login)
+    
 
-@never_cache
+
 @login_required(login_url='admin_login')
 def admin_dashboard(request):
-    # orders = Orders.objects.annotate(month = ExtractMonth('created_at')).values('month').annotate(count = Count('id')).values('month', 'count')
-    total_sales = Orders.objects.aggregate(Sum('total_price'))['total_price__sum']
-    total_users = CustomUser.objects.count()
-    total_orders = Orders.objects.count()
+    if request.user.is_superuser:
+        # orders = Orders.objects.annotate(month = ExtractMonth('created_at')).values('month').annotate(count = Count('id')).values('month', 'count')
+        total_sales = Orders.objects.aggregate(Sum('total_price'))['total_price__sum']
+        total_users = CustomUser.objects.count()
+        total_orders = Orders.objects.count()
 
-    year = datetime.now().year
-    start_date = datetime(year=year, month=1, day=1)
-    end_date = datetime(year=year, month=12, day=31)
+        year = datetime.now().year
+        start_date = datetime(year=year, month=1, day=1)
+        end_date = datetime(year=year, month=12, day=31)
 
-    orders = Orders.objects.filter(created_at__gte=start_date, created_at__lte=end_date) \
-                         .annotate(month=TruncMonth('created_at')) \
-                         .values('month') \
-                         .annotate(count=Coalesce(Count('id'), 0)) \
-                         .order_by('month')
+        orders = Orders.objects.filter(created_at__gte=start_date, created_at__lte=end_date) \
+                            .annotate(month=TruncMonth('created_at')) \
+                            .values('month') \
+                            .annotate(count=Coalesce(Count('id'), 0)) \
+                            .order_by('month')
 
-    labels_orders = [start_date.strftime('%B %Y')]
-    data_orders = [0]
+        labels_orders = [start_date.strftime('%B %Y')]
+        data_orders = [0]
 
-    for order in orders:
-        while order['month'].strftime('%B %Y') != labels_orders[-1]:
-            labels_orders.append((datetime.strptime(labels_orders[-1], '%B %Y') + timedelta(days=31)).strftime('%B %Y'))
-            data_orders.append(0)
-        data_orders[-1] = order['count']
+        for order in orders:
+            while order['month'].strftime('%B %Y') != labels_orders[-1]:
+                labels_orders.append((datetime.strptime(labels_orders[-1], '%B %Y') + timedelta(days=31)).strftime('%B %Y'))
+                data_orders.append(0)
+            data_orders[-1] = order['count']
 
-    
-    
-    users = CustomUser.objects.filter(date_joined__gte=start_date, date_joined__lte=end_date) \
-                         .annotate(month=TruncMonth('date_joined')) \
-                         .values('month') \
-                         .annotate(count=Coalesce(Count('id'), 0)) \
-                         .order_by('month')
+        
+        
+        users = CustomUser.objects.filter(date_joined__gte=start_date, date_joined__lte=end_date) \
+                            .annotate(month=TruncMonth('date_joined')) \
+                            .values('month') \
+                            .annotate(count=Coalesce(Count('id'), 0)) \
+                            .order_by('month')
 
-    
-    labels_users = [start_date.strftime('%B %Y')]
-    data_users = [0]
+        
+        labels_users = [start_date.strftime('%B %Y')]
+        data_users = [0]
 
-    for order in users:
-        while order['month'].strftime('%B %Y') != labels_users[-1]:
-            labels_users.append((datetime.strptime(labels_users[-1], '%B %Y') + timedelta(days=31)).strftime('%B %Y'))
-            data_users.append(0)
-        data_users[-1] = order['count']
-    
-    
-    recent_orders = Orders.objects.order_by('-created_at')[:10]
+        for order in users:
+            while order['month'].strftime('%B %Y') != labels_users[-1]:
+                labels_users.append((datetime.strptime(labels_users[-1], '%B %Y') + timedelta(days=31)).strftime('%B %Y'))
+                data_users.append(0)
+            data_users[-1] = order['count']
+        
+        
+        recent_orders = Orders.objects.order_by('-created_at')[:10]
 
-    context = {'recent_orders': recent_orders, 'totalSales': total_sales, 'totalUsers': total_users, 'total_orders': total_orders, 'labels_orders': labels_orders, 'data_orders': data_orders, 'labels_users': labels_users, 'data_users': data_users}
-    return render(request, 'custom_admin/index.html', context)
+        context = {'recent_orders': recent_orders, 'totalSales': total_sales, 'totalUsers': total_users, 'total_orders': total_orders, 'labels_orders': labels_orders, 'data_orders': data_orders, 'labels_users': labels_users, 'data_users': data_users}
+        return render(request, 'custom_admin/index.html', context)
+    else:
+        return redirect(admin_login)
 
 
 
@@ -139,11 +143,14 @@ def unblock_user(request, id):
     user.save()
     return redirect(display_user)
 
-@never_cache
+
 @login_required(login_url='admin_login')
 def display_user(request):
-    user = CustomUser.objects.all()
-    return render(request, 'custom_admin/display_user.html', {'user':user})
+    if request.user.is_superuser:
+        user = CustomUser.objects.all()
+        return render(request, 'custom_admin/display_user.html', {'user':user})
+    else:
+        return redirect(admin_login)
 
 @never_cache
 @login_required(login_url='admin_login')
@@ -181,11 +188,14 @@ def add_brand(request):
     return render(request, 'custom_admin/add_brand.html',{'form':form})
 
 
-@never_cache
+
 @login_required(login_url='admin_login')
 def display_brand(request):
-    brand = Brand.objects.all()
-    return render(request, 'custom_admin/display_brand.html', {'categories': brand})
+    if request.user.is_superuser:
+        brand = Brand.objects.all()
+        return render(request, 'custom_admin/display_brand.html', {'categories': brand})
+    else:
+        return redirect(admin_login)
 
 
 @never_cache

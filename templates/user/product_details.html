@@ -166,7 +166,7 @@
         <div class="single_product_text pl-4 mt-3" style="margin:0">
         <h3>{{product.name}}</h3>
         <h5>{{product.vendor}}</h5>
-        
+        <p>{{avg_rating}}</p>
         <p>
             {{product.description}}
         </p>
@@ -276,74 +276,73 @@
             </div>
             <div class="tab-pane fade" id="v-pills-3" role="tabpanel" aria-labelledby="v-pills-day-3-tab">
                 <div class="row p-4">
-                    <div class="col-md-7">
-                        <h3 class="mb-4">23 Reviews</h3>
+                    <div class="col-md-7 ">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="mb-4 count-reviews">{{count_reviews}} Reviews</h3>
+                            {% if user.is_authenticated%}
+                            {% if canAdd %}
+                            <button style="width:135px;" class="genric-btn info circle arrow reviewBtn" data-toggle="modal" data-target="#productReview">Add Review</button>
+                            {% endif %}
+                            {% endif %}
+                            <!-- Modal -->
+                            {% if user.is_authenticated %}
+                            
+                                <div class="modal fade" id="productReview" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Add Product Review</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" id="addReviewForm" action="{% url 'save-review' product.id %}">
+                                                {% csrf_token %}
+                                                <table class="table table-bordered">
+                                                    {{form.as_table}}
+                                                    
+                                                    <tr>
+                                                        <td colspan="2">
+                                                        <button style="width:100px;" class="genric-btn info circle arrow" type="submit">Submit</button>
+                                                        <button type="reset" style="width:100px;" class="genric-btn primary circle arrow" id="reset">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <p class="ajaxReviewRes"></p>
+                                            </form>
+                                        </div>
+                                        
+                                    </div>
+                                    </div>
+                                </div>
+                               
+                            {% endif%}
+                        </div>
+                        <div class="review-list">
+                            {% for review in reviews %}
                         <div class="review">
-                            <div class="user-img" imgsrc=""></div>
+                           
                             <div class="desc">
                                 <h4>
-                                    <span class="text-left">Jacob Webb</span>
-                                    <span class="text-right">14 March 2018</span>
+                                    <span class="text-left">{{review.user}}</span>
+                                    
                                 </h4>
                                 <p class="star">
                                     <span>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
+                                        {% for star in review.review_rating|ljust:review.review_rating %}
+                                        <i class="fa fa-star"></i>
+                                        {% endfor %}
                                     </span>
-                                    <span class="text-right"><a href="#" class="reply"><i
-                                                class="icon-reply"></i></a></span>
+                                    
                                 </p>
-                                <p>When she reached the first hills of the Italic Mountains, she had a last view
-                                    back on the skyline of her hometown Bookmarksgrov</p>
+                                <p>{{review.review_text}}</p>
                             </div>
                         </div>
-                        <div class="review">
-                            <div class="user-img" style="background-image: url(images/person_2.jpg)"></div>
-                            <div class="desc">
-                                <h4>
-                                    <span class="text-left">Jacob Webb</span>
-                                    <span class="text-right">14 March 2018</span>
-                                </h4>
-                                <p class="star">
-                                    <span>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                    </span>
-                                    <span class="text-right"><a href="#" class="reply"><i
-                                                class="icon-reply"></i></a></span>
-                                </p>
-                                <p>When she reached the first hills of the Italic Mountains, she had a last view
-                                    back on the skyline of her hometown Bookmarksgrov</p>
-                            </div>
-                        </div>
-                        <div class="review">
-                            <div class="user-img" style="background-image: url(images/person_3.jpg)"></div>
-                            <div class="desc">
-                                <h4>
-                                    <span class="text-left">Jacob Webb</span>
-                                    <span class="text-right">14 March 2018</span>
-                                </h4>
-                                <p class="star">
-                                    <span>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                        <i class="ion-ios-star-outline"></i>
-                                    </span>
-                                    <span class="text-right"><a href="#" class="reply"><i
-                                                class="icon-reply"></i></a></span>
-                                </p>
-                                <p>When she reached the first hills of the Italic Mountains, she had a last view
-                                    back on the skyline of her hometown Bookmarksgrov</p>
-                            </div>
-                        </div>
+                        {% endfor %}
+                       
+                        
+                     </div>
                     </div>
                     <div class="col-md-4">
                         <div class="rating-wrap">
@@ -608,7 +607,6 @@ document.getElementById('slider').scrollLeft += 180
   imageZoom('featured')
 </script>
 <script src="{% static 'js/main.js' %}">
-  
-</script>  
-<script src="{% static 'js/quantity.js' %}"></script>
+  </script>  
+
 {% endblock %}

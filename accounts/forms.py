@@ -2,7 +2,7 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser
+from .models import CustomUser, ProductReview
 from phonenumber_field.formfields import PhoneNumberField
 
 
@@ -30,3 +30,10 @@ class CustomUserChangeForm(UserChangeForm):
 
 class VerifyForm(forms.Form):
     code = forms.CharField(max_length=8, required=True, widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter Code'}))
+
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = ProductReview
+        fields = ('review_text', 'review_rating')
