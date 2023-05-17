@@ -177,9 +177,10 @@ def product(request, slug):
     num_of_item = 0
     reviewForm = ReviewForm()
     canAdd = True
-    reviewCheck = ProductReview.objects.filter(user = request.user, product = product).count()
+    
     if request.user.is_authenticated:
         if not request.user.is_superuser:
+            reviewCheck = ProductReview.objects.filter(user = request.user, product = product).count()
             customer = request.user
             order, created = Order.objects.get_or_create(customer = customer, complete = False)
             items = order.orderitem_set.all()
