@@ -521,8 +521,14 @@ def sales_report(request):
 
 def sales(request):
     if request.method == "POST":
-        start_time = datetime.strptime(request.POST.get('starting_date'), '%Y-%m-%dT%H:%M')
-        end_time = datetime.strptime(request.POST.get('ending_date'), '%Y-%m-%dT%H:%M')
+        start_time = request.POST.get('starting_date')
+        end_time = request.POST.get('ending_date')
+        if start_time and end_time:  # Check if start_date and end_date are provided in the POST request
+                start_time = datetime.strptime(start_time, '%Y-%m-%dT%H:%M')
+                end_time = datetime.strptime(end_time, '%Y-%m-%dT%H:%M')
+        else:  # Set default time to retrieve all orders
+                start_time = datetime(1900, 1, 1)  # Replace with your desired default start time
+                end_time = datetime.now()
         output_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
         output_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
         order = Orders.objects.filter(Q(created_at__gte=output_start_time) & Q(created_at__lte= output_end_time, status = "Completed" )).order_by('-created_at')
@@ -537,8 +543,18 @@ def sales_report_pdf(request):
         if 'pdf_button' in request.POST:
             
             print("in sales report")
-            start_time = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%dT%H:%M')
-            end_time = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%dT%H:%M')
+            
+            # start_time = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%dT%H:%M')
+            # end_time = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%dT%H:%M')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+
+            if start_date and end_date:  # Check if start_date and end_date are provided in the POST request
+                start_time = datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+                end_time = datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+            else:  # Set default time to retrieve all orders
+                start_time = datetime(1900, 1, 1)  # Replace with your desired default start time
+                end_time = datetime.now()
             
             output_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')
             output_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f+00:00')

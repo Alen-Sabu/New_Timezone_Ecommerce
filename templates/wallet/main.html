@@ -19,7 +19,7 @@
             
             <h3 class="mb-20">Wallet Summary</h3>
             <h3 class="mb-20">Balance:{{wallet.balance}} </h3>
-        
+            {% if orders %}
             <div class="progress-table">
             <div class="progress-table">
             <div class="table-head thead-dark" style="background-color:#93b5e2;">
@@ -43,6 +43,7 @@
             {% endfor %}
         </div>
         </div>
+        {% endif %}
         
         </div>
        

@@ -179,7 +179,7 @@
                                 </li>
                                 {% if user.is_authenticated  %}
                                 {% if not user.is_superuser %}
-                                <li> <a href="login.html"><span class="">{{user.username}}</span></a></li>
+                                <li> <a href="{% url 'user_edit' %}"><span class="">{{user.username}}</span></a></li>
                                 <li> <a href="{% url 'user_edit' %}"><span class="fa fa-user"></span></a></li>
                                 <li> <a href="{% url 'user_logout' %}"><span style="padding:20px 19px;" class="btn btn-secondary">Logout</span></a></li>
                                 {% endif %}

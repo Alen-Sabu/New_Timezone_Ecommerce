@@ -11,7 +11,10 @@
             <div class="carousel-inner">
                 {% for banne in banner%}
               <div class="carousel-item {% if banne.status %} active {% endif %}">
-                <img class="d-block w-100" src="{{banne.image.url}}" alt="First slide">
+                <img class="d-block" style="    width: 100%;
+                height: 500px;
+                object-fit: cover;
+                object-position: 10% 10%;" src="{{banne.image.url}}" alt="First slide">
                 <div class="carousel-caption d-none d-md-block" style="top:13%;">
                     <h1 style="    font-size: 96px;
                     font-weight: 700;

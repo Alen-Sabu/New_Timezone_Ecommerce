@@ -38,7 +38,7 @@ function addtoCart(e){
     let product_id = e.target.value
     let data = {id:product_id}
     var token = $('input[name=csrfmiddlewaretoken]').val()
-    var totalQty = $('#'+product_id).val()
+    var totalQty = document.getElementById(product_id).value
     console.log(totalQty)
 
     if(user == 'AnonymousUser'){
@@ -178,18 +178,22 @@ function getTotalItems() {
   
 
 function addCookieItem(productId, proQty, totalQty){
- 
-  console.log(proQty)
+    
+  
   if (cart[productId] == undefined){
       cart[productId] = {'quantity': parseInt(proQty)}
       alertify.success("Product Added Successfully")
       var total_items = getTotalItems()
       $('#lblCartCount').html(total_items)
   }else{
-      cart[productId]['quantity'] += parseInt(proQty)
-      alertify.success("Product Added Successfully")
-      var total_items = getTotalItems()
-      $('#lblCartCount').html(total_items)
+    if(totalQty >= (cart[productId]['quantity'] + parseInt(proQty))){
+        cart[productId]['quantity'] += parseInt(proQty)
+        var total_items = getTotalItems()
+        $('#lblCartCount').html(total_items)
+        alertify.success("Product Added Successfully")
+        }else{
+            alertify.error("Out of Stock")
+        }
   }
   if(cart[productId]['quantity'] > totalQty){
       cart[productId]['quantity'] = parseInt(totalQty)

@@ -81,27 +81,27 @@ WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'time_zone_01',
-#         'USER': 'postgres',
-#         'PASSWORD': '1234',
-#         'PORT': '5432',
-#         'HOST':'localhost'
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'myproject',
+#         'USER': 'myprojectuser',
+#         'PASSWORD': 'password',
+#         'HOST': 'localhost',
+#         'PORT': '',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'time_zone_01',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'PORT': '5432',
+        'HOST':'localhost'
+    }
+}
 
 
 
@@ -176,10 +176,10 @@ PAYPAL_TEST = True
 # settings.py
 
 # enable HTTPS by redirecting all HTTP requests to HTTPS
-SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = True
 
 # set the preferred URL scheme to HTTPS
-PREFERRED_URL_SCHEME = 'https'
+# PREFERRED_URL_SCHEME = 'https'
 
 
 # settings.py

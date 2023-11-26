@@ -14,10 +14,10 @@
             <form method = "post" action="{% url 'sales_report_pdf' %}">
                 {% csrf_token %}
             <label for="starting-time">Choose the start date:</label>
-            <input type="datetime-local" id="starting-time" name="start_date" required>
+            <input type="datetime-local" id="starting-time" name="start_date">
             
             <label for="ending-time">Choose the end date:</label>
-            <input type="datetime-local" id="ending-time" name="end_date" required>
+            <input type="datetime-local" id="ending-time" name="end_date" >
             
             <input type = "submit" class="btn sales_submit">
             <input class="btn btn-primary " type="submit" name="pdf_button" value="Download PDF">

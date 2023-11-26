@@ -399,7 +399,7 @@ def wallet_payment(request):
     billing_address_id = request.session.get('billing_address_id')
     shipping_address_id = request.session.get('shipping_address_id')
 
-    wallet = Wallet.objects.get(user = request.user)
+    wallet, created = Wallet.objects.get_or_create(user = request.user)
     if(wallet.balance == None):
         wallet.balance = 0
     if(wallet.balance >= cart.total_price):
@@ -731,18 +731,19 @@ def place_order(request):
     order.total_price -= discount
     
     
-    
+    num_of_item = order.get_cart_items
     
     order.save()
 
-    context = {'items': items, 'order':order, 'coupon_form': CouponForm(), 'discount': discount, 'address': default_address}
+    context = {'items': items, 'order':order, 'coupon_form': CouponForm(), 'discount': discount, 'address': default_address, 'num_of_items':num_of_item}
     return render(request, 'cart/checkout.html',context)
 
 def order_confirmation(request):
     orders = Orders.objects.filter(customer=request.user).order_by('created_at').last()
     order_items = OrderedItems.objects.filter(order = orders.id)
     
-    context = {'orders': orders, 'billing_address': orders.billing_address, 'shipping_address':orders.shipping_address, 'ordered_items':order_items,'order-total':orders.get_order_total, 'order-items-total':orders.get_cart_items}
+    context = {'orders': orders, 'billing_address': orders.billing_address, 'shipping_address':orders.shipping_address,
+                'ordered_items':order_items,'order-total':orders.get_order_total, 'order-items-total':orders.get_cart_items}
     return render(request, 'cart/confirmation.html', context)
 
 @login_required(login_url='user_login')

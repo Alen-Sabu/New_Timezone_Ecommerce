@@ -205,3 +205,18 @@ class Wallet(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user}'s Wallet"
+    
+
+class MyModelManager(models.Manager):
+    def new(self):
+        print("A new function added to base manager")
+
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+    objects = MyModelManager()
+
+
+class Book(models.Model):
+    author = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    price = models.IntegerField()
