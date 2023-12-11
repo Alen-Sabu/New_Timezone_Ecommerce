@@ -155,10 +155,13 @@ def user_signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
+            print("captcha validation success")
             phone_number = '+91' + str(form.cleaned_data.get('phone_number'))
             form.save()
             
             return redirect(user_login)
+        else:
+            print("captcha validation failed")
     else:
         form = CustomUserCreationForm()
     return render(request, 'user/register.html', {'form': form})

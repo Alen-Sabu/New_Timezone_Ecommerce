@@ -14,7 +14,7 @@ class ProductForm(forms.ModelForm):
     name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control' ,'id':'name'}))
    
     vendor = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control' ,'id':'vendor'}))
-    product_image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class':'form-control','id':'formFile', 'multiple': True}),required=False)
+    product_image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class':'form-control','id':'formFile'}),required=False)
     quantity = forms.IntegerField(widget=forms.NumberInput(attrs={'class':'form-control','id':'quantity'}))
     
     selling_price = forms.FloatField(widget=forms.NumberInput(attrs={'class':'form-control','id':'selling_price'}))
